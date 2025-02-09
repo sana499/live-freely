@@ -1,121 +1,84 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Welcome - Sign In with Google</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-        }
-
-        body {
-            min-height: 100vh;
-            background: linear-gradient(135deg, #FFE6E6 0%, #FFC0CB 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .container {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-        }
-
-        h1 {
-            color: #333;
-            margin-bottom: 30px;
-            font-size: 24px;
-        }
-
-        .google-btn {
-            width: 100%;
-            padding: 12px;
-            background: white;
-            color: #444;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: all 0.3s ease;
-        }
-
-        .google-btn:hover {
-            background: #f5f5f5;
-            border-color: #aaa;
-        }
-
-        .error-message {
-            color: #dc3545;
-            font-size: 14px;
-            margin-top: 10px;
-            display: none;
-        }
-    </style>
+    <title>Welcome - Sign In or Sign Up</title>
+    <link rel="stylesheet" href="./login.css">
 </head>
 <body>
     <div class="container">
-        <h1>Welcome to LiveFreely</h1>
-        <button onclick="signInWithGoogle()" class="google-btn">
-            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18" height="18">
-            Continue with Google
-        </button>
-        <div class="error-message" id="auth-error"></div>
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('signin')">Sign In</div>
+            <div class="tab" onclick="switchTab('signup')">Sign Up</div>
+        </div>
+
+        <form id="signin-form" onsubmit="handleSignIn(event)">
+            <div class="form-group">
+                <label for="signin-email">Email</label>
+
+                <input type="email" id="signin-email" required>
+                <div class="error-message" id="signin-email-error"></div>
+            </div>
+            <div class="form-group">
+                <label for="signin-password">Password</label>
+                <input type="password" id="signin-password" required>
+                <div class="error-message" id="signin-password-error"></div>
+            </div>
+            <button type="submit" class="submit-btn">Sign In</button>
+        </form>
+
+        <form id="signup-form" onsubmit="handleSignUp(event)" style="display: none;">
+            <div class="form-group">
+                <label for="signup-email">Email</label>
+                <input type="email" id="signup-email" required>
+                <div class="error-message" id="signup-email-error"></div>
+            </div>
+            <div class="form-group">
+                <label for="signup-password">Password</label>
+                <input type="password" id="signup-password" required>
+                <div class="error-message" id="signup-password-error"></div>
+            </div>
+            <div class="form-group">
+                <label for="signup-confirm-password">Confirm Password</label>
+                <input type="password" id="signup-confirm-password" required>
+                <div class="error-message" id="signup-confirm-password-error"></div>
+            </div>
+            <button type="submit" class="submit-btn">Sign Up</button>
+        </form>
     </div>
 
-    <!-- Firebase SDK -->
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    <script>
+        const dummyUser = { email: "test@gmail.com", password: "123" };
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDaCoM8gp5JKaTqSpjcWm5RUqDs9qaDROE",
-            authDomain: "livefreely-370ec.firebaseapp.com",
-            projectId: "livefreely-370ec",
-            storageBucket: "livefreely-370ec.firebasestorage.app",
-            messagingSenderId: "798992502367",
-            appId: "1:798992502367:web:14ac359f573ef77d96d5ea",
-            measurementId: "G-730TFKRSDS"
-        };
+        function switchTab(tab) {
+            document.getElementById('signin-form').style.display = tab === 'signin' ? 'block' : 'none';
+            document.getElementById('signup-form').style.display = tab === 'signup' ? 'block' : 'none';
+            document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+            document.querySelector(`.tab[onclick="switchTab('${tab}')"]`).classList.add('active');
+        }
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const provider = new GoogleAuthProvider();
-
-        // Make signInWithGoogle function available globally
-        window.signInWithGoogle = async function() {
-            try {
-                const result = await signInWithPopup(auth, provider);
-                // Redirect to dashboard or home page
+        function handleSignIn(event) {
+            event.preventDefault();
+            const email = document.getElementById('signin-email').value;
+            const password = document.getElementById('signin-password').value;
+            
+            if (email === dummyUser.email && password === dummyUser.password) {
+                alert("Login successful!");
                 window.location.href = '/chat.html';
-            } catch (error) {
-                const errorElement = document.getElementById('auth-error');
-                errorElement.textContent = error.message;
-                errorElement.style.display = 'block';
-                console.error('Google sign-in error:', error);
+            } else {
+                showError('signin-email-error', 'Invalid email or password');
             }
-        };
+        }
 
-        // Listen for auth state changes
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                // User is signed in, redirect to dashboard
-                window.location.href = '/chat.html';
-            }
-        });
+        function handleSignUp(event) {
+            event.preventDefault();
+            alert("Signup is disabled in this dummy login system.");
+        }
+
+        function showError(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
     </script>
 </body>
 </html>
