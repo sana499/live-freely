@@ -59,7 +59,7 @@ async function sendMessage() {
         
         try {
             // Send updated chat history to server
-            const response = await fetch('http://localhost:8000/chats', {
+            const response = await fetch('/chats', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

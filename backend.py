@@ -3,6 +3,8 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Optional, List
 import uvicorn
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 # Initialize FastAPI app
@@ -24,6 +26,13 @@ class ChatMessage(BaseModel):
 
 # Initialize a simple message store
 messages = []
+
+
+@app.get("/", response_class=HTMLResponse)
+async def home():
+    with open("static/index.html", "r", encoding="utf-8") as file:
+        html_content = file.read()
+    return HTMLResponse(content=html_content)
 
 @app.post("/chats")
 async def handle_chat(chat_message: ChatMessage):
@@ -51,7 +60,7 @@ async def get_messages():
 async def hhhhhhhh():
     print('sadasdadasdasd')
     return "hgjhgjhghj"
-
+app.mount("/", StaticFiles(directory="static"), name="static")
 
 # if __name__ == "__main__":
 #     uvicorn.run(app, host="localhost", port=8000)
